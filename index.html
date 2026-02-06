@@ -251,11 +251,11 @@
                     throw new Error("invalid input");
                 }
                 const ticksum1 = notes1.reduce((a, b) => a + b.length, 0);
-                previewCanvas1.width = 16 * ticksum1;
-                previewCanvas1.height = 1152;
+                previewCanvas1.width = Math.min(16384, 16 * ticksum1);
+                previewCanvas1.height = 576;
                 const ticksum2 = notes2.reduce((a, b) => a + b.length, 0);
-                previewCanvas2.width = 16 * ticksum2;
-                previewCanvas2.height = 1152;
+                previewCanvas2.width = Math.min(16384, 16 * ticksum2);
+                previewCanvas2.height = 576;
                 oscillatorNode1.frequency.cancelScheduledValues(context.currentTime);
                 noteGainNode1.gain.cancelScheduledValues(context.currentTime);
                 oscillatorNode2.frequency.cancelScheduledValues(context.currentTime);
