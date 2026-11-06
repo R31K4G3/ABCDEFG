@@ -1,0 +1,14 @@
+body, input, button, textarea {
+  background-color: #1f2122;
+  color: #e6e9f5;
+}
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: monospace;
+  height: 12rem;
+}
+.slider span { white-space: pre; }
+#rolls { overflow-x: scroll; cursor: grab; }
+.roll canvas { display: block; max-height: 45svh; }
