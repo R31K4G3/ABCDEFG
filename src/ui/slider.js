@@ -8,7 +8,8 @@ export function createSlider({ label, min, max, value, format, onInput }) {
   const name = document.createElement("span");
   name.textContent = `${label}: `;
 
-  const input = Object.assign(document.createElement("input"), {
+  const input = document.createElement("input");
+  Object.assign(input, {
     type: "range", min, max, value,
   });
 
@@ -21,5 +22,5 @@ export function createSlider({ label, min, max, value, format, onInput }) {
   update();
 
   element.append(name, input, display);
-  return { element, get value() { return +input.value; } };
+  return { element, inputElement: input, get value() { return +input.value; } };
 }

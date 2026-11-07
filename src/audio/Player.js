@@ -1,6 +1,6 @@
 import { Channel } from "./Channel.js";
 
-export class Player {
+export class Player extends EventTarget {
   #ctx;
   #master;
 
@@ -11,6 +11,7 @@ export class Player {
   #volume = 0.06;
 
   constructor() {
+    super();
     this.#ctx = new AudioContext();
     this.#master = this.#ctx.createGain();
     this.#master.gain.value = this.#volume;
@@ -34,12 +35,21 @@ export class Player {
     await this.#ctx.resume();
     this.stop();
     const start = this.#ctx.currentTime + 0.05;
-    this.#channels = tracks.map(t => new Channel(this.#ctx, this.#master, t.wave));
-    this.#channels.forEach((ch, i) => ch.play(tracks[i].notes, start, tickSec));
+    while (this.#channels.length < tracks.length) {
+      this.#channels.push(new Channel(this.#ctx, this.#master));
+    }
+    if (this.#channels.length > tracks.length) {
+      this.#channels.length = tracks.length;
+    }
+    this.#channels.forEach((ch, i) => {
+      ch.play(tracks[i].notes, start, tickSec, tracks[i].wave);
+      ch.addEventListener("ended", () => {
+        this.dispatchEvent(new CustomEvent("ended"));
+      }, { once: true });
+    });
   }
 
   stop() {
     this.#channels.forEach(ch => ch.stop());
-    this.#channels.length = 0;
   }
 }

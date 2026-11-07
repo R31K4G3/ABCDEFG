@@ -3,10 +3,9 @@ const CURVE = Float32Array.from({ __proto__: null, length: 64 }, (_, i) => STEPS
 
 const RELEASE_SEC = 0.01;
 
-export class Channel {
+export class Channel extends EventTarget {
   #ctx;
   #destination;
-  #wave;
 
   /** @type {{ osc: OscillatorNode; fade: GainNode } | null} */
   #current = null;
@@ -14,26 +13,26 @@ export class Channel {
   /**
    * @param {AudioContext} ctx
    * @param {AudioNode} destination
-   * @param {"sawtooth" | "sine" | "square" | "triangle"} wave
    */
-  constructor(ctx, destination, wave) {
+  constructor(ctx, destination) {
+    super();
     this.#ctx = ctx;
     this.#destination = destination;
-    this.#wave = wave;
   }
 
   /**
    * @param {{ freq: number; length: number }[]} notes
    * @param {number} startTime
    * @param {number} tickSec
+   * @param {"sawtooth" | "sine" | "square" | "triangle"} wave
    */
-  play(notes, startTime, tickSec) {
+  play(notes, startTime, tickSec, wave) {
     this.stop();
 
     const osc = this.#ctx.createOscillator();
     const envelope = this.#ctx.createGain();
     const fade = this.#ctx.createGain();
-    osc.type = this.#wave;
+    osc.type = wave;
     osc.connect(envelope).connect(fade).connect(this.#destination);
 
     envelope.gain.setValueAtTime(0, startTime);
@@ -48,10 +47,14 @@ export class Channel {
     osc.start(startTime);
     osc.stop(t);
     osc.onended = () => {
+      osc.onended = null;
       osc.disconnect();
       envelope.disconnect();
       fade.disconnect();
-      if (this.#current?.osc === osc) this.#current = null;
+      if (this.#current?.osc === osc) {
+        this.#current = null;
+        this.dispatchEvent(new CustomEvent("ended"));
+      }
     };
     this.#current = { osc, fade };
   }
@@ -67,5 +70,6 @@ export class Channel {
       // already stopped
     }
     this.#current = null;
+    this.dispatchEvent(new CustomEvent("ended"));
   }
 }

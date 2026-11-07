@@ -49,5 +49,11 @@ document.getElementById("start").addEventListener("click", async () => {
   });
   tracks.forEach((t, i) => rolls[i].draw(t.notes));
   await player.play(tracks, tempo.value / 400);
+  tempo.inputElement.disabled = true;
+  pitch.inputElement.disabled = true;
+  player.addEventListener("ended", () => {
+    tempo.inputElement.disabled = false;
+    pitch.inputElement.disabled = false;
+  }, { once: true });
 });
 document.getElementById("stop").addEventListener("click", () => player.stop());

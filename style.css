@@ -11,4 +11,5 @@ textarea {
 }
 .slider span { white-space: pre; }
 #rolls { overflow-x: scroll; cursor: grab; }
+.roll { padding: 0.3rem 0; }
 .roll canvas { display: block; max-height: 45svh; }
