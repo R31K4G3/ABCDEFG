@@ -1,5 +1,9 @@
 import { Channel } from "./Channel.js";
 
+const emptyAudio = new Audio();
+emptyAudio.src = "empty.ogg";
+document.body.append(emptyAudio);
+
 export class Player extends EventTarget {
   #ctx;
   #master;
@@ -13,6 +17,8 @@ export class Player extends EventTarget {
   constructor() {
     super();
     this.#ctx = new AudioContext();
+    const mediaElementSource = this.#ctx.createMediaElementSource(emptyAudio);
+    mediaElementSource.connect(this.#ctx.destination);
     this.#master = this.#ctx.createGain();
     this.#master.gain.value = this.#volume;
     this.#master.connect(this.#ctx.destination);
@@ -33,6 +39,7 @@ export class Player extends EventTarget {
    */
   async play(tracks, tickSec) {
     await this.#ctx.resume();
+    if (emptyAudio.paused) emptyAudio.play();
     this.stop();
     const start = this.#ctx.currentTime + 0.05;
     while (this.#channels.length < tracks.length) {
